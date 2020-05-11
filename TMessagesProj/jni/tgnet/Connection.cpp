@@ -428,6 +428,14 @@ void Connection::sendData(NativeByteBuffer *buff, bool reportAck, bool encrypted
         return;
     }
 
+    NativeByteBuffer *buffer = BuffersStorage::getInstance().getFreeBuffer(4);
+    buffer->writeInt32(buff->limit());
+    buffer->rewind();
+    writeBuffer(buffer);
+    writeBuffer(buff);
+
+    return;
+
     uint32_t bufferLen = 0;
     uint32_t packetLength;
 
