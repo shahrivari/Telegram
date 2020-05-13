@@ -68,7 +68,8 @@ void Connection::suspendConnection(bool idle) {
 }
 
 void Connection::onReceivedData(NativeByteBuffer *buffer) {
-    AES_ctr128_encrypt(buffer->bytes(), buffer->bytes(), buffer->limit(), &decryptKey, decryptIv, decryptCount, &decryptNum);
+    //AES_ctr128_encrypt(buffer->bytes(), buffer->bytes(), buffer->limit(), &decryptKey, decryptIv, decryptCount, &decryptNum);
+
     
     failedConnectionCount = 0;
 
@@ -428,10 +429,21 @@ void Connection::sendData(NativeByteBuffer *buff, bool reportAck, bool encrypted
         return;
     }
 
-    NativeByteBuffer *buffer = BuffersStorage::getInstance().getFreeBuffer(4);
-    buffer->writeInt32(buff->limit());
-    buffer->rewind();
-    writeBuffer(buffer);
+    uint32_t len = buff->limit() / 4;
+    DEBUG_D("Chista: data length: %d", len);
+    NativeByteBuffer *lenBuffer;
+
+    if (len< 0x7f){
+        lenBuffer = BuffersStorage::getInstance().getFreeBuffer(1);
+        lenBuffer->writeByte((uint8_t) len);
+    }
+    else{
+        lenBuffer = BuffersStorage::getInstance().getFreeBuffer(4);
+        lenBuffer->writeInt32((len << 8) + 0x7f);
+    }
+
+    lenBuffer->rewind();
+    writeBuffer(lenBuffer);
     writeBuffer(buff);
 
     return;

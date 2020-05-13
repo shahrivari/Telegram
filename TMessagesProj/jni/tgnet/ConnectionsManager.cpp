@@ -39,7 +39,7 @@ jclass jclass_ByteBuffer = nullptr;
 jmethodID jclass_ByteBuffer_allocateDirect = 0;
 #endif
 
-#define IP "192.168.10.111"
+#define IP "192.168.1.62"
 #define PORT 9100
 static bool done = false;
 
